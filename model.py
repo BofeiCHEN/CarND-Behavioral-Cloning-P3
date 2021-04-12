@@ -15,6 +15,7 @@ samples = []
 #read csv file
 data_path = '../data/behavioral-data/'
 with open(data_path + 'driving_log.csv') as csvfile:
+    next(csvfile)
     reader = csv.reader(csvfile)
     for line in reader:
         samples.append(line)
@@ -22,6 +23,7 @@ with open(data_path + 'driving_log.csv') as csvfile:
 train_samples, validation_samples = train_test_split(samples, test_size = 0.2)
 
 def generator(path, samples, batch_size=32):
+    correction = 0.2 # this is a parameter to tune
     num_samples = len(samples)
     while 1:
         shuffle(samples)
@@ -32,17 +34,28 @@ def generator(path, samples, batch_size=32):
             angles = []
             for batch_sample in batch_samples:
                 center_name = path + 'IMG/'+batch_sample[0].split('/')[-1]
-                left_name = './IMG/'+batch_sample[1].split('/')[-1]
-                right_name = './IMG/'+batch_sample[0].split('/')[-1]
-                #print(center_name)
+                left_name = path + './IMG/'+batch_sample[1].split('/')[-1]
+                right_name = path + './IMG/'+batch_sample[2].split('/')[-1]
+                
                 center_image = cv2.imread(center_name)
                 center_angle = float(batch_sample[3])
+                left_image = cv2.imread(left_name)
+                left_angle = center_angle + correction
+                right_image = cv2.imread(right_name)
+                right_angle = center_angle - correction
 
                 images.append(center_image)
                 angles.append(center_angle)
+                
+                images.append(left_image)
+                angles.append(left_angle)
+                
+                images.append(right_image)
+                angles.append(right_angle)
+
             X_train = np.array(images)
             y_train = np.array(angles)
-            yield tuple(map(tuple, shuffle(X_train, y_train)))
+            yield tuple( shuffle(X_train, y_train))
 
 batch_size = 32
 
@@ -67,14 +80,14 @@ model.add(layers.Flatten())
 model.add(layers.Dense(100))
 model.add(layers.Dense(50))
 model.add(layers.Dense(10))
+model.add(layers.Dense(1))
 
 model.summary()
-#keras.utils.plot_model(model, "my_first_model.png")
+keras.utils.plot_model(model, "behavioral_clone_model.png")
 model.compile(loss='mse', optimizer='adam')
-model.fit(train_generator, steps_per_epoch=ceil(len(train_samples)/batch_size), validation_data=validation_generator, validation_steps=ceil(len(validation_samples)/batch_size), epochs=5, verbose=1)
+model.fit_generator(train_generator, steps_per_epoch=ceil(len(train_samples)/batch_size), validation_data=validation_generator, validation_steps=ceil(len(validation_samples)/batch_size), epochs=5, verbose=1)
 
-#model.fit_generator(train_generator, steps_per_epoch=ceil(len(train_samples)/batch_size), validation_data=validation_generator, validation_steps=ceil(len(validation_samples)/batch_size), epochs=5, verbose=1)
+model.save('model.h5')
 
-#model.fit_generator(train_generator, steps_per_epoch = len(train_samples)*4, nb_epoch = 2, validation_data=validation_generator, nb_val_samples=len(validation_samples))
 print("END of model.py")
 
