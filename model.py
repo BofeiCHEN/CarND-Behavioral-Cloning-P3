@@ -17,8 +17,10 @@ from matplotlib import pyplot
 
 samples = []
 #read csv file
-data_path = '../../../opt/data/'
-#data_path = 'data/'
+data_path = '../../../opt/data/' # For the data upload to opt/data
+#data_path = 'data/' # For the Udacity data
+
+### load csv file
 with open(data_path + 'driving_log.csv') as csvfile:
     next(csvfile)
     reader = csv.reader(csvfile)
