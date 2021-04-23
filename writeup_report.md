@@ -57,4 +57,5 @@ At the begining, I didn't use the early stopping for avoiding overfittling. So I
 
 Then I tune the **steering correction** according some experance, and finally I use the value of 0.2.
 
-I traind the model with lots of data (about 3GB) in epoch from 10 to 30, but still cannot get one good result which means the car cannot finish one lap in automous. When I check the *val_loss* in training, I found that the value has increased in some epoch even it finally decrease to lower value when training finished. So I am thinking maybe I can stop them early. I first train the model in just 5 epoch which give me one good result. Then I add the **early stopping** to the training.
+I traind the model with lots of data (about 3GB) in epoch from 10 to 30, but still cannot get one good result which means the car cannot finish one lap in automous. When I check the *val_loss* in training, I found that the value has increased in some epoch even it finally decrease to lower value when training finished. So I am thinking maybe I can stop them early. I first train the model in just 5 epoch which give me one good result. Then I add the **early stopping** to the training. And get the loss figure as following:
+![loss](fig/losses.png)
